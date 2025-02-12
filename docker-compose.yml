@@ -5,3 +5,17 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
+    
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"  # Mapeia a porta 5173 do container para a porta 5173 do host
+    volumes:
+      - ./frontend:/app  # Monta o código fonte para hot reload
+      - /app/node_modules  # Evita sobrescrever o node_modules no container
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # Habilita hot reload no Docker
+    stdin_open: true  # Permite interação com o terminal
+    tty: true  # Aloca um terminal virtual

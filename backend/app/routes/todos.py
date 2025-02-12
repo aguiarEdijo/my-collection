@@ -41,6 +41,13 @@ def update_todo(todo_id: int, updated_todo: Todo, current_user: dict = Depends(g
         raise HTTPException(status_code=404, detail="Todo não encontrado")
     return todo
 
+@router.patch("/todos/{todo_id}/toggle", response_model=Todo)
+def toggle_todo_status(todo_id: int, current_user: dict = Depends(get_current_user)):
+    todo = TodoService.toggle_todo_status(todo_id)
+    if not todo:
+        raise HTTPException(status_code=404, detail="Todo não encontrado")
+    return todo
+
 @router.delete("/todos/{todo_id}")
 def delete_todo(todo_id: int, current_user: dict = Depends(get_current_user)):
     if not TodoService.delete_todo(todo_id):

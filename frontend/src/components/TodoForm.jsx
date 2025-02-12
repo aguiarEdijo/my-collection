@@ -17,12 +17,11 @@ const TodoForm = () => {
 
   const handleSubmit = async (values, { resetForm }) => {
     try {
-      // Despacha a ação e usa .unwrap() para resolver a Promise
       await dispatch(createTodo(values)).unwrap();
-      message.success('Tarefa criada com sucesso!'); // Feedback visual
-      resetForm(); // Limpa o formulário após o sucesso
+      message.success('Tarefa criada com sucesso!'); 
+      resetForm();
     } catch (error) {
-      message.error('Erro ao criar tarefa. Tente novamente.'); // Feedback de erro
+      message.error('Erro ao criar tarefa. Tente novamente.');
     }
   };
 

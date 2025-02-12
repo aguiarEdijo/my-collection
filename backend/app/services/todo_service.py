@@ -1,6 +1,5 @@
-from app.models.todo import Todo
+from app.models.todo import Todo, Optional
 
-# Banco de dados em memória (substitua por um banco de dados real no futuro)
 todos_db = []
 
 class TodoService:
@@ -10,7 +9,6 @@ class TodoService:
     
     @staticmethod
     def create_todo(todo: Todo) -> Todo:
-        # Gera um ID único (simulação)
         new_id = len(todos_db) + 1
         todo.id = new_id
         todos_db.append(todo)
@@ -29,6 +27,15 @@ class TodoService:
             if todo.id == todo_id:
                 todos_db[index] = updated_todo
                 return updated_todo
+        return None
+    
+    @staticmethod
+    def toggle_todo_status(todo_id: int) -> Optional[Todo]:
+        for index, todo in enumerate(todos_db):
+            if todo.id == todo_id:
+                # Inverte o status de completed
+                todos_db[index].completed = not todo.completed
+                return todos_db[index]
         return None
 
     @staticmethod

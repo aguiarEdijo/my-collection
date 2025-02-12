@@ -39,6 +39,13 @@ export const updateTodo = createAsyncThunk('todos/updateTodo', async ({ todoId, 
     return response.data;
 });
 
+export const toggleTodoStatus = createAsyncThunk('todos/toggleTodoStatus', async ({ todoId, completed }) => {
+    const response = await api.patch(`/todos/${todoId}/toggle`, { completed }, {
+        headers: getAuthHeaders()
+    });
+    return response.data;
+});
+
 export const deleteTodo = createAsyncThunk('todos/deleteTodo', async (todoId) => {
     await api.delete(`/todos/${todoId}`, {
         headers: getAuthHeaders()
@@ -116,10 +123,17 @@ const todosSlice = createSlice({
                 const todoId = action.payload;
                 state.items = state.items.filter((todo) => todo.id !== todoId);
             })
+            .addCase(toggleTodoStatus.fulfilled, (state, action) => {
+                const updatedTodo = action.payload;
+                state.items = state.items.map((todo) =>
+                    todo.id === updatedTodo.id ? updatedTodo : todo
+                );
+            })
             .addCase(deleteTodo.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             });
+
     },
 });
 
