@@ -1,6 +1,5 @@
 import React from 'react';
 import { Menu } from 'antd';
-import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../features/auth/authSlice';
 
@@ -12,15 +11,15 @@ const Navbar = () => {
     dispatch(logout());
   };
 
-  return (
-    <Menu mode="horizontal" theme="dark">
+  const items = [
+    token && {
+      key: 'logout',
+      label: <span onClick={handleLogout} style={{ fontWeight: 'bold', fontSize:'20px', textDecoration: 'underline' }}>Sair</span>,
+    },
+  ].filter(Boolean);
 
-      {token && (
-        <Menu.Item key="logout" onClick={handleLogout}>
-          Sair
-        </Menu.Item>
-      ) }
-    </Menu>
+  return (
+    <Menu mode="horizontal" theme="ligth" style={{ justifyContent: 'flex-end' }} items={items} />
   );
 };
 

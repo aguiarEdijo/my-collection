@@ -27,7 +27,7 @@ const TodoForm = () => {
 
   return (
     <div className="todo-form-container">
-      <Card title="Criar Novo Todo" className="todo-form-card">
+      <Card title="Criar Nova Tarefa" className="todo-form-card">
         <Formik
           initialValues={{ title: '', description: '' }}
           validationSchema={validationSchema}
@@ -36,7 +36,7 @@ const TodoForm = () => {
           {({ handleSubmit }) => (
             <Form onFinish={handleSubmit} layout="vertical">
               <Form.Item label="Título">
-                <Field name="title" as={Input} placeholder="Digite o título da tarefa" />
+                <Field name="title" as={Input} placeholder="Digite o título da tarefa" maxLength={100}/>
                 <ErrorMessage name="title" component="div" className="error-message" />
               </Form.Item>
               <Form.Item label="Descrição">
@@ -45,6 +45,7 @@ const TodoForm = () => {
                   as={Input.TextArea}
                   placeholder="Descreva a tarefa"
                   rows={4}
+                  maxLength={500}
                 />
                 <ErrorMessage name="description" component="div" className="error-message" />
               </Form.Item>

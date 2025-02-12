@@ -50,12 +50,12 @@ const TodoList = () => {
                 onChange={() => handleToggleStatus(todo.id, todo.completed)}
               />,
               // Botão de edição (pode ser substituído por um link para a página de edição)
-              <Button
-                key="edit"
-                type="link"
-                icon={<EditOutlined />}
-                onClick={() => message.info('Funcionalidade de edição em desenvolvimento.')}
-              />,
+              // <Button
+              //   key="edit"
+              //   type="link"
+              //   icon={<EditOutlined />}
+              //   onClick={() => message.info('Funcionalidade de edição em desenvolvimento.')}
+              // />,
               // Botão de exclusão com confirmação
               <Popconfirm
                 key="delete"

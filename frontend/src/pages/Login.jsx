@@ -42,11 +42,11 @@ const Login = () => {
           {({ handleSubmit }) => (
             <Form onFinish={handleSubmit} layout="vertical">
               <Form.Item label="Usuário">
-                <Field name="username" as={Input} />
+                <Field name="username" as={Input} maxLength={20} />
                 <ErrorMessage name="username" component="div" className="error-message" />
               </Form.Item>
               <Form.Item label="Senha">
-                <Field name="password" as={Input.Password} />
+                <Field name="password" as={Input.Password} maxLength={64} />
                 <ErrorMessage name="password" component="div" className="error-message" />
               </Form.Item>
               <Form.Item>

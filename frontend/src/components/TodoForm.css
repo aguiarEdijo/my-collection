@@ -32,18 +32,11 @@
   
   .todo-form-card .ant-btn {
     width: 100%;
-    background-color: #52c41a;
-    border-color: #52c41a;
     font-weight: bold;
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  
-  .todo-form-card .ant-btn:hover {
-    background-color: #73d13d;
-    border-color: #73d13d;
   }
   
   .todo-form-card .ant-btn .anticon {
