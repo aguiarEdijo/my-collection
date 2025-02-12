@@ -16,7 +16,7 @@ A simple Todo application built with **FastAPI** (backend) and **React** (fronte
 
 ## Technologies
 
-- **Backend**: FastAPI, PostgreSQL, Docker.
+- **Backend**: FastAPI, Docker.
 - **Frontend**: React, Vite, Ant Design, Docker.
 - **Authentication**: JWT (JSON Web Tokens).
 
