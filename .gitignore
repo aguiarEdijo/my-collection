@@ -1,0 +1,19 @@
+# Ignorar arquivos de cache do Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Ignorar arquivos gerados pelo Docker
+*.log
+*.pid
+.dockerignore
+
+# Ignorar arquivos temporários
+*~
+*.swp
+.vscode/
+.idea/
+
+# Outras pastas ou arquivos específicos do seu projeto que você não quer versionar
+/node_modules
+/dist
