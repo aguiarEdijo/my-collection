@@ -4,6 +4,11 @@ from app.utils.security import verify_password, get_password_hash, create_access
 # Banco de dados em memória (substitua por um banco de dados real no futuro)
 users_db = []
 
+admin_user = User(username="admin", password="admin")
+hashed_password = get_password_hash(admin_user.password)
+admin_user_in_db = UserInDB(**admin_user.dict(exclude={'password'}), id=len(users_db) + 1, password=hashed_password)
+users_db.append(admin_user_in_db)
+
 class AuthService:
     @staticmethod
     def authenticate_user(username: str, password: str):

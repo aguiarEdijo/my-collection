@@ -42,3 +42,7 @@ Frontend: http://localhost:5173
 Backend: http://localhost:8000
 
 API Docs (Swagger UI): http://localhost:8000/docs
+
+user: admin
+
+password: admin
