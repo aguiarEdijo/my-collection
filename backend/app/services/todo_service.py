@@ -1,4 +1,5 @@
-from app.models.todo import Todo, Optional
+from app.models.todo import Todo
+from typing import Optional
 
 todos_db = []
 
