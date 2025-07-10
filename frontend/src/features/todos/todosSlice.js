@@ -1,140 +1,174 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../../services/api';
 
-// Função para adicionar o token de autenticação nos headers
-const getAuthHeaders = () => {
-    const token = localStorage.getItem('accessToken'); // Supondo que você armazene o token no localStorage
-    return {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-    };
-};
+export const fetchTodos = createAsyncThunk(
+    'todos/fetchTodos',
+    async (_, { rejectWithValue }) => {
+        try {
+            const response = await api.get('/todos/');
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.detail || 'Erro ao carregar tarefas');
+        }
+    }
+);
 
-// Listar todos
-export const fetchTodos = createAsyncThunk('todos/fetchTodos', async () => {
-    const response = await api.get('/todos/', {
-        headers: getAuthHeaders()
-    });
-    return response.data;
-});
+export const createTodo = createAsyncThunk(
+    'todos/createTodo',
+    async (todoData, { rejectWithValue }) => {
+        try {
+            const response = await api.post('/todos/', todoData);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.detail || 'Erro ao criar tarefa');
+        }
+    }
+);
 
-export const createTodo = createAsyncThunk('todos/createTodo', async (todoData) => {
-    const response = await api.post('/todos/', todoData, {
-        headers: getAuthHeaders()
-    });
-    return response.data;
-});
+export const updateTodo = createAsyncThunk(
+    'todos/updateTodo',
+    async ({ todoId, updatedData }, { rejectWithValue }) => {
+        try {
+            const response = await api.put(`/todos/${todoId}`, updatedData);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.detail || 'Erro ao atualizar tarefa');
+        }
+    }
+);
 
-export const fetchTodoById = createAsyncThunk('todos/fetchTodoById', async (todoId) => {
-    const response = await api.get(`/todos/${todoId}`, {
-        headers: getAuthHeaders()
-    });
-    return response.data;
-});
+export const toggleTodoStatus = createAsyncThunk(
+    'todos/toggleTodoStatus',
+    async ({ todoId }, { rejectWithValue }) => {
+        try {
+            const response = await api.patch(`/todos/${todoId}/toggle`);
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.detail || 'Erro ao alterar status');
+        }
+    }
+);
 
-export const updateTodo = createAsyncThunk('todos/updateTodo', async ({ todoId, updatedData }) => {
-    const response = await api.put(`/todos/${todoId}`, updatedData, {
-        headers: getAuthHeaders()
-    });
-    return response.data;
-});
-
-export const toggleTodoStatus = createAsyncThunk('todos/toggleTodoStatus', async ({ todoId, completed }) => {
-    const response = await api.patch(`/todos/${todoId}/toggle`, { completed }, {
-        headers: getAuthHeaders()
-    });
-    return response.data;
-});
-
-export const deleteTodo = createAsyncThunk('todos/deleteTodo', async (todoId) => {
-    await api.delete(`/todos/${todoId}`, {
-        headers: getAuthHeaders()
-    });
-    return todoId;
-});
+export const deleteTodo = createAsyncThunk(
+    'todos/deleteTodo',
+    async (todoId, { rejectWithValue }) => {
+        try {
+            await api.delete(`/todos/${todoId}`);
+            return todoId;
+        } catch (error) {
+            return rejectWithValue(error.response?.data?.detail || 'Erro ao excluir tarefa');
+        }
+    }
+);
 
 const todosSlice = createSlice({
     name: 'todos',
     initialState: {
         items: [],
-        selectedTodo: null,
         status: 'idle',
         error: null,
     },
-    reducers: {},
+    reducers: {
+        clearError: (state) => {
+            state.error = null;
+        },
+        clearTodos: (state) => {
+            state.items = [];
+        },
+        addOptimisticTodo: (state, action) => {
+            state.items.push(action.payload);
+        },
+        removeOptimisticTodo: (state, action) => {
+            state.items = state.items.filter(todo => todo.id !== action.payload);
+        },
+        updateOptimisticTodo: (state, action) => {
+            const index = state.items.findIndex(todo => todo.id === action.payload.id);
+            if (index !== -1) {
+                state.items[index] = { ...state.items[index], ...action.payload.updates };
+            }
+        }
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchTodos.pending, (state) => {
                 state.status = 'loading';
+                state.error = null;
             })
             .addCase(fetchTodos.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 state.items = action.payload;
+                state.error = null;
             })
             .addCase(fetchTodos.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = action.error.message;
+                state.error = action.payload;
             })
 
             .addCase(createTodo.pending, (state) => {
                 state.status = 'loading';
+                state.error = null;
             })
             .addCase(createTodo.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.items.push(action.payload);
+
+                // Remover todos os itens temporários primeiro
+                state.items = state.items.filter(todo =>
+                    !(typeof todo.id === 'string' && todo.id.includes('temp_'))
+                );
+
+                // Verificar se já existe item com mesmo ID real
+                const existingIndex = state.items.findIndex(todo => todo.id === action.payload.id);
+
+                if (existingIndex !== -1) {
+                    state.items[existingIndex] = action.payload;
+                } else {
+                    state.items.push(action.payload);
+                }
+                state.error = null;
             })
             .addCase(createTodo.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = action.error.message;
+                state.error = action.payload;
             })
 
-            .addCase(fetchTodoById.pending, (state) => {
-                state.status = 'loading';
-            })
-            .addCase(fetchTodoById.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                state.selectedTodo = action.payload;
-            })
-            .addCase(fetchTodoById.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message;
-            })
-
-            .addCase(updateTodo.pending, (state) => {
-                state.status = 'loading';
-            })
             .addCase(updateTodo.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                const updatedTodo = action.payload;
-                state.items = state.items.map((todo) =>
-                    todo.id === updatedTodo.id ? updatedTodo : todo
-                );
+                const index = state.items.findIndex(todo => todo.id === action.payload.id);
+                if (index !== -1) {
+                    state.items[index] = action.payload;
+                }
+                state.error = null;
             })
             .addCase(updateTodo.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message;
+                state.error = action.payload;
             })
 
-            .addCase(deleteTodo.pending, (state) => {
-                state.status = 'loading';
-            })
-            .addCase(deleteTodo.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                const todoId = action.payload;
-                state.items = state.items.filter((todo) => todo.id !== todoId);
-            })
             .addCase(toggleTodoStatus.fulfilled, (state, action) => {
-                const updatedTodo = action.payload;
-                state.items = state.items.map((todo) =>
-                    todo.id === updatedTodo.id ? updatedTodo : todo
-                );
+                const index = state.items.findIndex(todo => todo.id === action.payload.id);
+                if (index !== -1) {
+                    state.items[index] = action.payload;
+                }
+                state.error = null;
+            })
+            .addCase(toggleTodoStatus.rejected, (state, action) => {
+                state.error = action.payload;
+            })
+
+            .addCase(deleteTodo.fulfilled, (state, action) => {
+                state.items = state.items.filter(todo => todo.id !== action.payload);
+                state.error = null;
             })
             .addCase(deleteTodo.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message;
+                state.error = action.payload;
             });
-
     },
 });
+
+export const {
+    clearError,
+    clearTodos,
+    addOptimisticTodo,
+    removeOptimisticTodo,
+    updateOptimisticTodo
+} = todosSlice.actions;
 
 export default todosSlice.reducer;
